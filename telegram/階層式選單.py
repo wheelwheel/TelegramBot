@@ -4,11 +4,17 @@ import json
 import os
 import configparser
 
+# 取得目前檔案所在的資料夾
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# 找到 env.ini 的完整路徑
+ini_path = os.path.join(current_dir, '..', 'env.ini')
+
 # 建立 configparser 實例
 config = configparser.ConfigParser()
 
 # 讀取 env.ini
-config.read('env.ini')
+config.read(ini_path, encoding="utf-8")
 
 BOT_Token = config['Key']['BOT_Token']
 
