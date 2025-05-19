@@ -4,6 +4,10 @@ import json
 import os
 import configparser
 
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from weather.weather import get_weather
+
 # 取得目前檔案所在的資料夾
 current_dir = os.path.dirname(os.path.abspath(__file__))
 
@@ -23,12 +27,13 @@ BOT_Token = config['Key']['BOT_Token']
 with open(os.path.join("files", "location.json"), "r", encoding="utf-8") as f:
     taiwan_data = json.load(f)
 
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def select(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton(region, callback_data=f"region:{region}")]
         for region in taiwan_data.keys()
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
+    
     await update.message.reply_text("請選擇區域：", reply_markup=reply_markup)
 
 async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -61,8 +66,11 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     elif data.startswith("district:"):
         _, region, city, district = data.split(":", 3)
-        await query.edit_message_text(f"你選擇的是：{region} - {city} - {district}")
-
+        # 呼叫 weather.py 查詢天氣
+        weather_info = get_weather(city, district)
+        await query.edit_message_text(
+            f"你選擇的是：{region} - {city} - {district}\n\n天氣資訊：\n{weather_info}"
+        )
     elif data == "back_to_region":
         keyboard = [
             [InlineKeyboardButton(region, callback_data=f"region:{region}")]
@@ -81,11 +89,3 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         keyboard.append([InlineKeyboardButton("返回區域選單", callback_data="back_to_region")])
         reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(f"請選擇 {region} 的縣市：", reply_markup=reply_markup)
-
-if __name__ == '__main__':
-    app = ApplicationBuilder().token(BOT_Token).build()
-
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(CallbackQueryHandler(button_handler))
-
-    app.run_polling()
