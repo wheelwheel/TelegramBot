@@ -22,13 +22,17 @@ config.read(ini_path, encoding="utf-8")
 
 BOT_Token = config['Key']['BOT_Token']
 
+async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("感謝使用")
+    
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await select(update, context)    
     
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_Token).build()
     
-    app.add_handler(CommandHandler("start", start))
+    app.add_handler(CommandHandler("start", welcome))
+    app.add_handler(CommandHandler("weather", start))
     app.add_handler(CallbackQueryHandler(button_handler))
 
     app.run_polling()

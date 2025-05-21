@@ -43,9 +43,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     data = query.data
 
     if data.startswith("region:"):
-        region = data.split(":", 1)[1]
-        cities = taiwan_data.get(region, {})
-        keyboard = [
+        region     = data.split(":", 1)[1]
+        cities     = taiwan_data.get(region, {})
+        keyboard   = [
             [InlineKeyboardButton(city, callback_data=f"city:{region}:{city}")]
             for city in cities.keys()
         ]
@@ -69,7 +69,7 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # 呼叫 weather.py 查詢天氣
         weather_info = get_weather(city, district)
         await query.edit_message_text(
-            f"你選擇的是：{region} - {city} - {district}\n\n天氣資訊：\n{weather_info}"
+            f"你選擇的是：{region} - {city} - {district}\n\n🌤️ 24小時天氣預報\n{weather_info}"
         )
     elif data == "back_to_region":
         keyboard = [
